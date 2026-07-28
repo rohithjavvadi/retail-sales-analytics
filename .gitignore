@@ -21,4 +21,4 @@ data/processed/
 # Streamlit cache
 .streamlit/
 # Logs
-*.log
+*.loggit a
