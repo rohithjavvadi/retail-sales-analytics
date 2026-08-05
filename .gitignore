@@ -22,3 +22,7 @@ data/processed/
 .streamlit/
 # Logs
 *.loggit a
+
+.env
+database/retailiq.db
+.venv/
