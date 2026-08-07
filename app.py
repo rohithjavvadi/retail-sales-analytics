@@ -177,6 +177,94 @@ category_chart.update_layout(
 )
 
 # ==========================================================
+# REVENUE BY STATE
+# ==========================================================
+
+state_sales = (
+    df.groupby("CUSTOMER_STATE")["PRICE"]
+    .sum()
+    .sort_values(ascending=False)
+    .reset_index()
+)
+
+state_chart = px.bar(
+    state_sales,
+    x="CUSTOMER_STATE",
+    y="PRICE",
+    title="Revenue by Customer State"
+)
+
+state_chart.update_layout(
+    xaxis_title="State",
+    yaxis_title="Revenue ($)"
+)
+
+# ==========================================================
+# TOP SELLERS
+# ==========================================================
+
+seller_sales = (
+    df.groupby("SELLER_ID")["PRICE"]
+    .sum()
+    .sort_values(ascending=False)
+    .head(10)
+    .reset_index()
+)
+
+seller_chart = px.bar(
+    seller_sales,
+    x="PRICE",
+    y="SELLER_ID",
+    orientation="h",
+    title="Top 10 Sellers"
+)
+
+seller_chart.update_layout(
+    xaxis_title="Revenue ($)",
+    yaxis_title=""
+)
+
+# ==========================================================
+# DASHBOARD ROW 2
+# ==========================================================
+
+col3, col4 = st.columns(2)
+
+with col3:
+    st.plotly_chart(
+        state_chart,
+        use_container_width=True
+    )
+
+with col4:
+    st.plotly_chart(
+        seller_chart,
+        use_container_width=True
+    )
+
+# ==========================================================
+# SALES DATA
+# ==========================================================
+
+st.subheader("Sales Data")
+
+st.dataframe(
+    df,
+    use_container_width=True
+)
+# ==========================================================
+# DOWNLOAD DATA
+# ==========================================================
+
+csv = df.to_csv(index=False).encode("utf-8")
+
+st.download_button(
+    label="📥 Download Data as CSV",
+    data=csv,
+    file_name="retailiq_sales.csv",
+    mime="text/csv"
+)
+# ==========================================================
 # DASHBOARD ROW 1
 # ==========================================================
 
