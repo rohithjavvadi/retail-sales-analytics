@@ -1,22 +1,15 @@
+import sys
+from pathlib import Path
+
+# Add project root to Python path
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
+
 import pandas as pd
 import streamlit as st
-import snowflake.connector  as snowflake
 import plotly.express as px
 
 from snowflake_connection import run_query
-
-# ==========================================================
-# PAGE CONFIG
-# ==========================================================
-
-st.set_page_config(
-    page_title="RetailIQ Executive Dashboard",
-    page_icon="📊",
-    layout="wide"
-)
-
-st.title("📊 RetailIQ Executive Dashboard")
-st.markdown("### Snowflake Data Warehouse Dashboard")
 
 # ==========================================================
 # LOAD DATA
@@ -30,7 +23,18 @@ def load_data():
     """
     return run_query(query)
 
+
 df = load_data()
+
+
+# ==========================================================
+# PAGE TITLE
+# ==========================================================
+
+st.title("📊 RetailIQ Executive Dashboard")
+st.markdown("### Snowflake Data Warehouse Dashboard")
+
+
 # ==========================================================
 # KPI CALCULATIONS
 # ==========================================================
@@ -43,8 +47,9 @@ total_customers = df["CUSTOMER_ID"].nunique()
 
 avg_order_value = total_revenue / total_orders
 
+
 # ==========================================================
-# KPI CARDS
+# EXECUTIVE KPIs
 # ==========================================================
 
 st.subheader("📈 Executive KPIs")
@@ -77,55 +82,6 @@ with col4:
 
 st.divider()
 
-# ==========================================================
-# SHOW DATA
-# ==========================================================
-
-# ==========================================================
-# KPI CALCULATIONS
-# ==========================================================
-
-total_revenue = df["PRICE"].sum()
-
-total_orders = df["ORDER_ID"].nunique()
-
-total_customers = df["CUSTOMER_ID"].nunique()
-
-avg_order_value = total_revenue / total_orders
-
-# ==========================================================
-# KPI CARDS
-# ==========================================================
-
-st.subheader("📈 Executive KPIs")
-
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    st.metric(
-        "💰 Revenue",
-        f"${total_revenue:,.2f}"
-    )
-
-with col2:
-    st.metric(
-        "📦 Orders",
-        f"{total_orders:,}"
-    )
-
-with col3:
-    st.metric(
-        "👥 Customers",
-        f"{total_customers:,}"
-    )
-
-with col4:
-    st.metric(
-        "🛒 Avg Order Value",
-        f"${avg_order_value:,.2f}"
-    )
-
-st.divider()
 
 # ==========================================================
 # MONTHLY REVENUE
@@ -150,6 +106,7 @@ monthly_chart.update_layout(
     xaxis_title="Month",
     yaxis_title="Revenue ($)"
 )
+
 
 # ==========================================================
 # TOP PRODUCT CATEGORIES
@@ -176,6 +133,7 @@ category_chart.update_layout(
     yaxis_title=""
 )
 
+
 # ==========================================================
 # REVENUE BY STATE
 # ==========================================================
@@ -198,6 +156,7 @@ state_chart.update_layout(
     xaxis_title="State",
     yaxis_title="Revenue ($)"
 )
+
 
 # ==========================================================
 # TOP SELLERS
@@ -224,46 +183,7 @@ seller_chart.update_layout(
     yaxis_title=""
 )
 
-# ==========================================================
-# DASHBOARD ROW 2
-# ==========================================================
 
-col3, col4 = st.columns(2)
-
-with col3:
-    st.plotly_chart(
-        state_chart,
-        use_container_width=True
-    )
-
-with col4:
-    st.plotly_chart(
-        seller_chart,
-        use_container_width=True
-    )
-
-# ==========================================================
-# SALES DATA
-# ==========================================================
-
-st.subheader("Sales Data")
-
-st.dataframe(
-    df,
-    use_container_width=True
-)
-# ==========================================================
-# DOWNLOAD DATA
-# ==========================================================
-
-csv = df.to_csv(index=False).encode("utf-8")
-
-st.download_button(
-    label="📥 Download Data as CSV",
-    data=csv,
-    file_name="retailiq_sales.csv",
-    mime="text/csv"
-)
 # ==========================================================
 # DASHBOARD ROW 1
 # ==========================================================
@@ -282,3 +202,47 @@ with col2:
         use_container_width=True
     )
 
+
+# ==========================================================
+# DASHBOARD ROW 2
+# ==========================================================
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.plotly_chart(
+        state_chart,
+        use_container_width=True
+    )
+
+with col2:
+    st.plotly_chart(
+        seller_chart,
+        use_container_width=True
+    )
+
+
+# ==========================================================
+# SALES DATA
+# ==========================================================
+
+st.subheader("Sales Data")
+
+st.dataframe(
+    df,
+    use_container_width=True
+)
+
+
+# ==========================================================
+# DOWNLOAD DATA
+# ==========================================================
+
+csv = df.to_csv(index=False).encode("utf-8")
+
+st.download_button(
+    label="📥 Download Data as CSV",
+    data=csv,
+    file_name="retailiq_sales.csv",
+    mime="text/csv"
+)
